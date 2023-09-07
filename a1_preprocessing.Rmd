@@ -111,8 +111,8 @@ Many different procedures can be used here, and unless you have to deal with gig
 
 ```{r rename_variables}
 ### Write your code here
-Teeeeeest
 
+hej
 ```
 
 **2. Renaming values**
