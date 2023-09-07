@@ -21,6 +21,10 @@ bibliography: '../../varia/bibliography.bib'
 ---
 
 
+```{r, setup, include=FALSE}
+knitr::opts_knit$set(root.dir = '/Users/annechristinevig/Documents/GitHub/CAHA')
+```
+
 The objective of this warm-up assignment is to brush up your programming and data wrangling skills as well as to introduce you to the data set you will be working on in Assignment 1. More precisely, you will here be asked here to do the following:
 
 1. Introduction to version control
@@ -71,12 +75,6 @@ Your job in this assignment is to double-check the data and make it analysis-rea
 
 If you have created a Rstudio project for this assignment, the working directory for this assignment (the default path for any function, procedure or command that works on files) is the project directory. If you have decided otherwise, first make sure that you set your working directory to the path of the current RMarkdown file. You can also use the following code chunk to install and/or load the packages you will need for the tasks below.
 
-```{r setup}
-### Write your code here
-
-
-```
-
 Load the following three data sets, after downloading them from dropbox and saving them in your working directory:
 
 - [Demographic data of the participants](https://www.dropbox.com/scl/fi/i0ty63jrjx6amp9ty5pbw/demo_train.csv?rlkey=wmx86tb0z12st8ec04dhvgmrr&dl=0)
@@ -85,11 +83,12 @@ Load the following three data sets, after downloading them from dropbox and savi
 
 ```{r import_datasets, message = FALSE}
 ### Write your code here
-
-
+df1_demo <- read.csv("demo_train.csv")
+df2_LU <- read.csv("LU_train.csv")
+df3_token <- read.csv("token_train.csv")
 ```
 
-Using various visualisation and aggregation procedures, explore these data sets and try to compare them to each other and draw parallel. You'll quickly notice that this is not an easy task. This is in part due to the fact that the different data sets were built by different researchers at different points in time. In particular, you'll find out that: 
+Using various visualization and aggregation procedures, explore these data sets and try to compare them to each other and draw parallel. You'll quickly notice that this is not an easy task. This is in part due to the fact that the different data sets were built by different researchers at different points in time. In particular, you'll find out that: 
 
 - the same variables might have different names (e.g. participant and visit identifiers)
 - the same variables might report the values in different ways (e.g. participant and visit IDs)
@@ -108,7 +107,6 @@ The first task thus consists in identifying which variable names are spelled dif
 - check the **janitor** R package.
 
 Many different procedures can be used here, and unless you have to deal with gigantic data sets and have severe limitations in terms of computation time and space, there is no need for optimization here. Whatever works works.
-
 
 ```{r rename_variables}
 ### Write your code here
