@@ -72,7 +72,7 @@ If you have created a Rstudio project for this assignment, the working directory
 
 ```{r setup}
 ### Write your code here
-
+library("dplyr")
 
 ```
 
@@ -112,7 +112,41 @@ Many different procedures can be used here, and unless you have to deal with gig
 ```{r rename_variables}
 ### Write your code here
 
-hej
+#changing child.ID to SUBJ
+
+names(demo_train)[names(demo_train) == 'Child.ID'] <- 'SUBJ'
+names(demo_train)[names(demo_train) == 'Visit'] <- 'VISIT'
+
+
+#make letters small, visit, maybe ethnicity
+
+token_train$VISIT <- tolower(token_train$VISIT)
+LU_train$VISIT <- tolower(LU_train$VISIT)
+
+
+#X to visitX
+
+VISIT <- as.character(demo_train$VISIT)
+
+demo_train <- demo_train %>% 
+    mutate(VISIT = paste("visit", VISIT, sep = ""))
+
+
+#Remove punctuation behind
+
+LU_train$SUBJ <- gsub(pattern = "[,.]$", replacement = "", LU_train$SUBJ)
+LU_train$VISIT <- gsub(pattern = "[,.]$", replacement = "",LU_train$VISIT)
+
+token_train$VISIT <- gsub(pattern = "[,.]$", replacement = "", token_train$VISIT)
+
+demo_train$SUBJ <- gsub(pattern = "[,.]$", replacement = "", demo_train$SUBJ)
+
+#Then merge them together by the two shared columns
+
+df <- merge(LU_train, demo_train, by = c("SUBJ", "VISIT"), all = T)
+
+df <- merge(df, token_train, by = c("SUBJ", "VISIT"), all = T)
+
 ```
 
 **2. Renaming values**
