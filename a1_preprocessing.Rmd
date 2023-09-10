@@ -73,6 +73,7 @@ If you have created a Rstudio project for this assignment, the working directory
 ```{r setup}
 ### Write your code here
 library("dplyr")
+library(stringr)
 
 ```
 
@@ -85,6 +86,11 @@ Load the following three data sets, after downloading them from dropbox and savi
 ```{r import_datasets, message = FALSE}
 ### Write your code here
 
+demo_train <- read.csv("demo_train.csv")
+
+LU_train <- read.csv("LU_train.csv")
+
+token_train <- read.csv("token_train.csv")
 
 ```
 
@@ -112,7 +118,7 @@ Many different procedures can be used here, and unless you have to deal with gig
 ```{r rename_variables}
 ### Write your code here
 
-#changing child.ID to SUBJ
+#changing child.ID to SUBJ and visit to VISIT
 
 names(demo_train)[names(demo_train) == 'Child.ID'] <- 'SUBJ'
 names(demo_train)[names(demo_train) == 'Visit'] <- 'VISIT'
@@ -124,28 +130,22 @@ token_train$VISIT <- tolower(token_train$VISIT)
 LU_train$VISIT <- tolower(LU_train$VISIT)
 
 
-#X to visitX
+#X to visitX, done better in the chunk below
 
-VISIT <- as.character(demo_train$VISIT)
+#VISIT <- as.character(demo_train$VISIT)
 
-demo_train <- demo_train %>% 
-    mutate(VISIT = paste("visit", VISIT, sep = ""))
+#demo_train <- demo_train %>% 
+   # mutate(VISIT = paste("visit", VISIT, sep = ""))
 
 
-#Remove punctuation behind
+#Remove punctuation behind, also done better below
 
-LU_train$SUBJ <- gsub(pattern = "[,.]$", replacement = "", LU_train$SUBJ)
-LU_train$VISIT <- gsub(pattern = "[,.]$", replacement = "",LU_train$VISIT)
+#LU_train$SUBJ <- gsub(pattern = "[,.]$", replacement = "", LU_train$SUBJ)
+#LU_train$VISIT <- gsub(pattern = "[,.]$", replacement = "",LU_train$VISIT)
 
-token_train$VISIT <- gsub(pattern = "[,.]$", replacement = "", token_train$VISIT)
+#token_train$VISIT <- gsub(pattern = "[,.]$", replacement = "", token_train$VISIT)
 
-demo_train$SUBJ <- gsub(pattern = "[,.]$", replacement = "", demo_train$SUBJ)
-
-#Then merge them together by the two shared columns
-
-df <- merge(LU_train, demo_train, by = c("SUBJ", "VISIT"), all = T)
-
-df <- merge(df, token_train, by = c("SUBJ", "VISIT"), all = T)
+#demo_train$SUBJ <- gsub(pattern = "[,.]$", replacement = "", demo_train$SUBJ)
 
 ```
 
@@ -157,6 +157,8 @@ Find a way to homogenize the way "visit" is reported amongst the different datas
 ```{r extract_digits}
 ### Write your code here
 
+LU_train$VISIT <- str_extract(LU_train$VISIT, "\\d")
+token_train$VISIT <- str_extract(LU_train$VISIT, "\\d")
 
 ```
 
@@ -168,6 +170,15 @@ A similar task needs to be done regarding the value names of the Child.ID variab
 ```{r remove_points}
 ### Write your code here
 
+demo_train$SUBJ <- str_replace_all(demo_train$SUBJ, "[,.]$", replacement = "")
+LU_train$SUBJ <- str_replace_all(LU_train$SUBJ, "[,.]$", replacement = "")
+token_train$SUBJ <- str_replace_all(token_train$SUBJ, "[,.]$", replacement = "")
+
+#Then merge them together by the two shared columns
+
+merge_df <- merge(LU_train, demo_train, by = c("SUBJ", "VISIT"), all = T)
+
+merge_df <- merge(df, token_train, by = c("SUBJ", "VISIT"), all = T)
 
 ```
 
@@ -194,6 +205,14 @@ The variables of relevance here are the following:
 * types_CHI, 
 * tokens_MOT, 
 * tokens_CHI.
+
+```{r}
+df <- merge_df %>% 
+    select(SUBJ, VISIT, Diagnosis, Ethnicity, Gender, Age, ADOS, MullenRaw, ExpressiveLangRaw, Socialization, MOT_MLU, CHI_MLU, types_MOT.x, types_MOT.y, types_CHI.x, types_CHI.y, tokens_MOT.x, tokens_MOT.y, tokens_CHI.x, tokens_CHI.y)
+
+df
+```
+
 
 Most variables names should make sense, that is, should be straightforward as regards to the information it contains. Here are the less intuitive ones among the ones listed above:
 
