@@ -311,7 +311,6 @@ Finally, save the cleaned data in Comma-Separated Values (CSV) format, under a n
 
 write.csv(cleaned_df, "C:/Users/anelo/OneDrive/Documents/GitHub/Methods 3/CAHA\\cleaned_ASD.csv", row.names = F)
 
-
 ```
 
 Your data is now ready for the next assignment!
