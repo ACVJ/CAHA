@@ -23,6 +23,8 @@ bibliography: '../../varia/bibliography.bib'
 
 ```{r, setup, include=FALSE}
 knitr::opts_knit$set(root.dir = '/Users/annechristinevig/Documents/GitHub/CAHA')
+
+library("tidyverse") #contains both stringr and dplyr 
 ```
 
 The objective of this warm-up assignment is to brush up your programming and data wrangling skills as well as to introduce you to the data set you will be working on in Assignment 1. More precisely, you will here be asked here to do the following:
@@ -110,37 +112,40 @@ Many different procedures can be used here, and unless you have to deal with gig
 
 ```{r rename_variables}
 ### Write your code here
-
-
+df1_demo <- df1_demo %>% rename("SUBJ" = Child.ID)
+df1_demo <- df1_demo %>% rename("VISIT" = Visit) 
 ```
 
 **2. Renaming values**
 
 Find a way to homogenize the way "visit" is reported amongst the different datasets. The function **str_extract ()** from the package **stringr** can help you here: with the use of the regular expression '//d', this function allows you to capture the first occurrence of a number (*d* is for *digit*) within a string.
 
-
 ```{r extract_digits}
-### Write your code here
-
-
+#mutate create a new column, this new column is saved in the space of the original column 
+df2_LU <- df2_LU %>%
+  mutate(VISIT = str_extract(VISIT, "\\d"))
 ```
 
 A similar task needs to be done regarding the value names of the Child.ID variable in the demographic data set. The values of this variable that are not abbreviated do not end with "." (i.e. Adam), whereas they do in the other two data sets (i.e. Adam.). Key merges, that is, merging of data sets based on shared variables, can only be done is the latter have overlapping value names; if no identical value names can be found, nothing will be merged. In the present case, a simple way to ensure this consists in removing all points from the values of the corresponding variables. The package **stringr** can again be of help here, notably the function **str_replace_all()**.
-
+ 
 **Tip:** You can either have one line of code for each child name that needs to be changed (easier, more typing) or specify the pattern that you want to replace (more complicated: look up "regular expressions", but more generic and thus less typing)
-
-
+ 
 ```{r remove_points}
-### Write your code here
+#Using mutate to add a column, overriding the previous column by '=', using \\. to identify '.', and '$' to specify end of a string/line 
 
-
+df1_demo %>% 
+    mutate(SUBJ = str_replace_all(SUBJ, "\\.$", ""))
+df2_LU %>% 
+        mutate(SUBJ = str_replace_all(SUBJ, "\\.$", ""))
+df3_token %>% 
+        mutate(SUBJ = str_replace_all(SUBJ, "\\.$", ""))
 ```
 
 
 **4. Data subsetting **
 
 This task consists in transforming the three data sets so as to keep only the variables that are of relevance for the project. For this purpose, the function **select()** from the **tidyverse** package **dplyr** will do nicely. 
-
+ 
 The variables of relevance here are the following:
 
 * Child.ID, 
