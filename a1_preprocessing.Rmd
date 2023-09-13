@@ -179,7 +179,7 @@ Feel free to rename the variables into something you think is more intuitive (i.
 
 ```{r rename_selected_variables}
 ### Write your code here
-
+#zebra
 
 ```
 
