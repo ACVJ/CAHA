@@ -72,8 +72,20 @@ Your job in this assignment is to double-check the data and make it analysis-rea
 If you have created a Rstudio project for this assignment, the working directory for this assignment (the default path for any function, procedure or command that works on files) is the project directory. If you have decided otherwise, first make sure that you set your working directory to the path of the current RMarkdown file. You can also use the following code chunk to install and/or load the packages you will need for the tasks below.
 
 ```{r setup}
-### Write your code here
+# echo = TRUE prints code (and results) to HTML output file.
+knitr::opts_chunk$set(echo = TRUE)  
 
+#set working directory. 
+knitr::opts_knit$set(root.dir = '~/Documents/GitHub/CAHA') 
+getwd()
+
+# clear environment.
+rm(list=ls()) # clears global workspace.
+
+
+#Loading in packages
+library(tidyverse)
+library(stringr)
 
 ```
 
@@ -84,9 +96,10 @@ Load the following three data sets, after downloading them from dropbox and savi
 - [Word data](https://www.dropbox.com/scl/fi/h4dop19ctdubhokbfsn2q/token_train.csv?rlkey=wffzcf1211bglrx8239g3e0h8&dl=0)
 
 ```{r import_datasets, message = FALSE}
-### Write your code here
-
-
+#Loading in data
+Demo_participants <- read.csv("demo_train.csv")
+lu_data <- read.csv("LU_train.csv")
+Word_data <- read.csv("token_train.csv")
 ```
 
 Using various visualisation and aggregation procedures, explore these data sets and try to compare them to each other and draw parallel. You'll quickly notice that this is not an easy task. This is in part due to the fact that the different data sets were built by different researchers at different points in time. In particular, you'll find out that: 
@@ -111,9 +124,14 @@ Many different procedures can be used here, and unless you have to deal with gig
 
 
 ```{r rename_variables}
-### Write your code here
+#Renaming "Visit" variable
+lu_data <- rename(lu_data, Visit = VISIT)
+Word_data <- rename(Word_data, Visit = VISIT)
 
-
+#Rename "ID" variable
+Demo_participants <- rename(Demo_participants, ID = Child.ID)
+lu_data <- rename(lu_data, ID = SUBJ)
+Word_data <- rename(Word_data, ID = SUBJ)
 ```
 
 **2. Renaming values**
@@ -122,8 +140,10 @@ Find a way to homogenize the way "visit" is reported amongst the different datas
 
 
 ```{r extract_digits}
-### Write your code here
-
+#Making the "Visit" value numerical
+Demo_participants$Visit <- str_extract(Demo_participants$Visit, "\\d+")
+lu_data$Visit <- str_extract(lu_data$Visit, "\\d+")
+Word_data$Visit <- str_extract(Word_data$Visit, "\\d+")
 
 ```
 
@@ -133,9 +153,10 @@ A similar task needs to be done regarding the value names of the Child.ID variab
 
 
 ```{r remove_points}
-### Write your code here
-
-
+### Removing the dots after the names in the ID column
+Demo_participants$ID <- str_replace_all(Demo_participants$ID, "\\.$", "")
+lu_data$ID <- str_replace_all(lu_data$ID, "\\.$","")
+Word_data$ID <- str_replace_all(Word_data$ID, "\\.$","")
 ```
 
 
@@ -175,8 +196,37 @@ Most variables names should make sense, that is, should be straightforward as re
 Feel free to rename the variables into something you think is more intuitive (i.e. *nonVerbalIQ*, *verbalIQ*)
 
 ```{r rename_selected_variables}
-### Write your code here
+#Renaming Columns
+Demo_participants <- rename(Demo_participants, nonverbalIQ = MullenRaw)
+Demo_participants <- rename(Demo_participants, verbalIQ = ExpressiveLangRaw)
 
+#Selecting relevant variables:
+Demo_participants <- Demo_participants %>%
+  select(
+    ID, 
+    Visit, 
+    Diagnosis, 
+    Ethnicity, 
+    Gender, 
+    Age, 
+    ADOS,  
+    nonverbalIQ,
+    verbalIQ, 
+    Socialization)
+
+lu_data <- lu_data %>%
+  select(
+    MOT_MLU, 
+    CHI_MLU)
+
+
+Word_data <- Word_data %>%
+  select(
+    types_MOT, 
+    types_CHI, 
+    tokens_MOT, 
+    tokens_CHI
+  )
 
 ```
 
@@ -190,7 +240,25 @@ It is important here to check if merging the data sets:
 - has resulted in the creation of NAs within the merged data set. If this is so, it is important to understand why these NAs were created (e.g. some measures were not taken at all visits, some recordings were lost or permission to use was withdrawn).
 
 ```{r merge_data}
-### Write your code here
+merged_dataset <- bind_rows(Demo_participants, lu_data, Word_data)
+
+# Check for any loss of relevant data
+missing_data <- setdiff(union(names(Demo_participants), union(names(lu_data), names(Word_data))), names(merged_dataset))
+if (length(missing_data) > 0) {
+  cat("The following relevant variables were lost during merging:\n")
+  cat(paste(missing_data, collapse = ", "), "\n")
+} else {
+  cat("No relevant data was lost during merging.\n")
+}
+
+# Check for NAs in the merged data set
+nas <- sum(is.na(merged_dataset))
+
+if (nas > 0) {
+  cat("Total NAs in the merged data set:", nas, "\n")
+} else {
+  cat("No NAs were created in the merged data set.\n")
+}
 
 
 ```
@@ -207,9 +275,21 @@ A possible way to do so:
 
 
 ```{r add_first_visit_variables}
-### Write your code here
+# Filter the data to keep only the first visit for each child
+first_visit_data <- merged_dataset %>%
+  group_by(ID) %>%
+  arrange(Visit) %>% 
+  slice(1) %>%
+  ungroup()
 
+# Rename the clinical variables to indicate they relate to the first visit
+first_visit_data <- first_visit_data %>%
+  rename(ADOS1 = ADOS,
+         nonverbalIQ1 = nonverbalIQ,
+         verbalIQ1 = verbalIQ,
+         Socialization1 = Socialization)
 
+first_visit_data
   
 ```
 
@@ -218,9 +298,16 @@ A possible way to do so:
 An important part of data cleaning is making sure both variable names and value allow for easy and intuitive analysis and interpretation. For example, the different values for the categorical variable *gender* have been encoded to '1' and '2', but these numbers are useless to anyone who doesn't have the proper encoding dictionary, which maps each number to the corresponding category, namely 'male' or 'female'. In the following code chunk, resolve this ambiguity by reversing the encoding of the gender variable, so that 1 and 2 are changed to F and M respectively. In the same vein, transform the 'Diagnosis' variable so that 'A's and 'B's are reverted back to ASD (Autism Spectrum Disorder) and TD (typically developing) respectively.
 
 ```{r revert_encoding}
-### Write your code here
 
+# Reverse the encoding of 'gender' variable
+first_visit_data <- first_visit_data %>%
+  mutate(gender = recode(Gender, "1" = "F", "2" = "M"))
 
+# Reverse the encoding of 'Diagnosis' variable
+first_visit_data <- first_visit_data %>%
+  mutate(Diagnosis = recode(Diagnosis, "A" = "ASD", "B" = "TD"))
+
+cleaned_Data <- first_visit_data
 ```
 
 **8. Saving cleaned data**
@@ -228,12 +315,16 @@ An important part of data cleaning is making sure both variable names and value 
 Finally, save the cleaned data in Comma-Separated Values (CSV) format, under a name and at a location of your own choosing.
 
 ```{r save_changes}
-### Write your code here
+# Choose a file path and name where you want to save the CSV file
+file_path <- "~/CAHA/cleaned_data.csv"
+
+# Save the cleaned data to a CSV file
+write.csv(cleaned_Data, file = file_path, row.names = FALSE)
 
 
 ```
 
 Your data is now ready for the next assignment!
-
+ 
 # References
 <div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
