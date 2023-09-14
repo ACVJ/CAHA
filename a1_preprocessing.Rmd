@@ -170,7 +170,7 @@ A similar task needs to be done regarding the value names of the Child.ID variab
 ```{r remove_points}
 ### Write your code here
 
-#remove . at end of subj
+#remove ., at end of subj
 demo_train$SUBJ <- str_replace_all(demo_train$SUBJ, "[,.]$", replacement = "")
 LU_train$SUBJ <- str_replace_all(LU_train$SUBJ, "[,.]$", replacement = "")
 token_train$SUBJ <- str_replace_all(token_train$SUBJ, "[,.]$", replacement = "")
@@ -209,7 +209,21 @@ The variables of relevance here are the following:
 
 ```{r}
 df <- merge_df %>% 
-    select(SUBJ, VISIT, Diagnosis, Ethnicity, Gender, Age, ADOS, MullenRaw, ExpressiveLangRaw, Socialization, MOT_MLU, CHI_MLU, types_MOT, types_CHI, tokens_MOT, tokens_CHI)
+    select(SUBJ,
+           VISIT,
+           Diagnosis,
+           Ethnicity,
+           Gender,
+           Age,
+           ADOS,
+           MullenRaw,
+           ExpressiveLangRaw,
+           Socialization,
+           MOT_MLU, CHI_MLU,
+           types_MOT,
+           types_CHI,
+           tokens_MOT,
+           tokens_CHI)
 
 df
 ```
@@ -265,7 +279,12 @@ A possible way to do so:
 #creating new df with the five columns from 1st visit
 df_visit1 <- df %>% 
     filter(VISIT == "1") %>% 
-    select(SUBJ, ADOS, MullenRaw, ExpressiveLangRaw, Socialization)
+    select(
+        SUBJ,
+        ADOS, 
+        MullenRaw, 
+        ExpressiveLangRaw, 
+        Socialization)
 
 #renaming
 
