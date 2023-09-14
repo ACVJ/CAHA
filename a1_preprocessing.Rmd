@@ -1,23 +1,12 @@
 ---
-title: "Assignment 1 (A1): Git Hub Configuration and Data Cleaning"
-subtitle: 'Instructions'
+title: "Methods 3 -- Portfolio Assignment 1"
+author: "Christian, Ane, Anne Christine & Hannah Mai"
+header-includes: \usepackage{fancyhdr} \usepackage{fvextra} \pagestyle{fancy} \fancyhead[HC]{Portfolio
+  Assignment 1}
 output:
+  pdf_document: default
   html_document:
-      toc: yes
-      number_sections: no
-      toc_float: yes
-      theme: united
-      highlight: espresso
-      css: '../../varia/standard.css'
-geometry: margin=1in
-knit: (function(inputFile, encoding) {
-  browseURL(
-    rmarkdown::render(
-      inputFile,
-      encoding = encoding,
-      output_dir = 'documents/assignments/solutions',
-      output_file = "a1_preprocessing.html"))})
-bibliography: '../../varia/bibliography.bib'
+    df_print: paged
 ---
 
 
@@ -334,11 +323,6 @@ file_path <- "~/Documents/GitHub/CAHA/Cleaned_data_merged"
 
 # Save the cleaned data to a CSV file
 write.csv(Cleaned_data_merged, file = file_path, row.names = FALSE)
-
-
 ```
 
-Your data is now ready for the next assignment!
- 
-# References
-<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
+Our data is now ready for the next assignment!
