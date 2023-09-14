@@ -25,6 +25,7 @@ bibliography: '../../varia/bibliography.bib'
 knitr::opts_knit$set(root.dir = '/Users/annechristinevig/Documents/GitHub/CAHA')
 
 library("tidyverse") #contains both stringr and dplyr 
+rm(list=ls()) # clear global work space #ligesom at trykke på kosten
 ```
 
 The objective of this warm-up assignment is to brush up your programming and data wrangling skills as well as to introduce you to the data set you will be working on in Assignment 1. More precisely, you will here be asked here to do the following:
@@ -124,6 +125,9 @@ Find a way to homogenize the way "visit" is reported amongst the different datas
 #mutate create a new column, this new column is saved in the space of the original column 
 df2_LU <- df2_LU %>%
   mutate(VISIT = str_extract(VISIT, "\\d"))
+
+df3_token <- df3_token %>%
+  mutate(VISIT = str_extract(VISIT, "\\d"))
 ```
 
 A similar task needs to be done regarding the value names of the Child.ID variable in the demographic data set. The values of this variable that are not abbreviated do not end with "." (i.e. Adam), whereas they do in the other two data sets (i.e. Adam.). Key merges, that is, merging of data sets based on shared variables, can only be done is the latter have overlapping value names; if no identical value names can be found, nothing will be merged. In the present case, a simple way to ensure this consists in removing all points from the values of the corresponding variables. The package **stringr** can again be of help here, notably the function **str_replace_all()**.
@@ -179,7 +183,6 @@ Feel free to rename the variables into something you think is more intuitive (i.
 
 ```{r rename_selected_variables}
 ### Write your code here
-#zebra
 
 ```
 
