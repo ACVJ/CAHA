@@ -65,17 +65,15 @@ If you have created a Rstudio project for this assignment, the working directory
 knitr::opts_chunk$set(echo = TRUE)  
 
 #set working directory. 
-knitr::opts_knit$set(root.dir = '~/Documents/GitHub/CAHA') 
-#getwd()
+#knitr::opts_knit$set(root.dir = '~/Documents/GitHub/CAHA') 
+knitr::opts_knit$set(root.dir = '~/Documents/GitHub/a1-preprocessing-most-insane-study-group_caha') 
 
 # clear environment.
 rm(list=ls()) # clears global workspace.
 
-
 #Loading in packages
 library(tidyverse)
 library(stringr)
-
 ```
 
 Load the following three data sets, after downloading them from dropbox and saving them in your working directory:
@@ -132,7 +130,6 @@ Find a way to homogenize the way "visit" is reported amongst the different datas
 #Making the "Visit" value numerical
 lu_data$Visit <- str_extract(lu_data$Visit, "\\d")
 Word_data$Visit <- str_extract(Word_data$Visit, "\\d")
-#?str_extract
 ```
 
 A similar task needs to be done regarding the value names of the Child.ID variable in the demographic data set. The values of this variable that are not abbreviated do not end with "." (i.e. Adam), whereas they do in the other two data sets (i.e. Adam.). Key merges, that is, merging of data sets based on shared variables, can only be done is the latter have overlapping value names; if no identical value names can be found, nothing will be merged. In the present case, a simple way to ensure this consists in removing all points from the values of the corresponding variables. The package **stringr** can again be of help here, notably the function **str_replace_all()**.
@@ -219,7 +216,6 @@ Word_data <- Word_data %>%
     tokens_MOT, 
     tokens_CHI
   )
-
 ```
 
 **5. Data merge**
@@ -232,11 +228,8 @@ It is important here to check if merging the data sets:
 - has resulted in the creation of NAs within the merged data set. If this is so, it is important to understand why these NAs were created (e.g. some measures were not taken at all visits, some recordings were lost or permission to use was withdrawn).
 
 ```{r merge_data}
-
 mergeddf1 <- merge(Demo_participants, lu_data, by = c("ID", "Visit"), all = T)
 merged_dataset <- merge(mergeddf1, Word_data, by = c("ID", "Visit"), all = T)
-
-
 
 # Check for any loss of relevant data
 missing_data <- setdiff(union(names(Demo_participants), union(names(lu_data), names(Word_data))), names(merged_dataset))
@@ -257,7 +250,6 @@ if (nas > 0) {
 }
 
 colSums(is.na(merged_dataset))
-
 ```
 
 **6. Data filtering**
@@ -272,7 +264,6 @@ A possible way to do so:
 
 
 ```{r add_first_visit_variables}
-
 #Creating new df with the five columns from 1st visit
 df_visit1 <- merged_dataset %>% 
     filter(Visit == "1") %>% 
@@ -291,10 +282,7 @@ Cleaned_data_merged <- merge(merged_dataset, first_visit_data, by = c("ID"), all
 
 Cleaned_data_merged <- rename(Cleaned_data_merged, Visit = Visit.x)
 Cleaned_data_merged <- subset(Cleaned_data_merged, select = -Visit.y )
-  
 ```
-
-
 
 **7. Reverse Encoding**
 
@@ -302,7 +290,6 @@ An important part of data cleaning is making sure both variable names and value 
 
 
 ```{r revert_encoding}
-
 # Reverse the encoding of 'gender' variable
 Cleaned_data_merged <- Cleaned_data_merged %>%
   mutate(Gender = recode(Gender, "1" = "M", "2" = "F"))
@@ -310,7 +297,6 @@ Cleaned_data_merged <- Cleaned_data_merged %>%
 # Reverse the encoding of 'Diagnosis' variable
 Cleaned_data_merged <- Cleaned_data_merged %>%
   mutate(Diagnosis = recode(Diagnosis, "A" = "ASD", "B" = "TD"))
-
 ```
 
 **8. Saving cleaned data**
@@ -319,7 +305,7 @@ Finally, save the cleaned data in Comma-Separated Values (CSV) format, under a n
 
 ```{r save_changes}
 # Choose a file path and name where you want to save the CSV file
-file_path <- "~/Documents/GitHub/CAHA/Cleaned_data_merged"
+file_path <- "~/Documents/GitHub/a1-preprocessing-most-insane-study-group_caha/Cleaned_data_merged"
 
 # Save the cleaned data to a CSV file
 write.csv(Cleaned_data_merged, file = file_path, row.names = FALSE)
